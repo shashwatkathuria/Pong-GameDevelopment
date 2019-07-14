@@ -7,11 +7,19 @@ WINDOW_HEIGHT = 720
 VIRTUAL_WIDTH = 432
 VIRTUAL_HEIGHT = 243
 
+leftPlayerX = 10
 leftPlayerY = 30
+rightPlayerX = VIRTUAL_WIDTH - 10
 rightPlayerY = VIRTUAL_HEIGHT - 50
 
+ballX = VIRTUAL_WIDTH / 2 - 2
+ballY = VIRTUAL_HEIGHT / 2 - 2
 
-PADDLE_SPEED = 300
+ballVx = -100
+ballVy = 0
+
+
+PADDLE_SPEED = 250
 
 function love.load()
 
@@ -36,6 +44,9 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
+    ballX = ballX + ballVx * dt
+    ballY = ballY + ballVy * dt
+
     if love.keyboard.isDown('w') then
         leftPlayerY = leftPlayerY + -PADDLE_SPEED * dt
     elseif love.keyboard.isDown('s') then
@@ -71,13 +82,49 @@ function love.draw()
     else
         rightPlayerY = 0
     end
+    leftPaddleCollide = ballCollideLeftPlayer()
+    rightPaddleCollide = ballCollideRightPlayer()
+    print(leftPaddleCollide)
+    print(rightPaddleCollide)
+    if ballCollideLeftPlayer() then
+      ballVx = -ballVx
+    end
+    if ballCollideRightPlayer() then
+      ballVx = -ballVx
+    end
     love.graphics.rectangle('fill', 10, leftPlayerY, 5, 20)
     love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayerY, 5, 20)
-    love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
+    love.graphics.rectangle('fill', ballX, ballY, 4, 4)
 
     push:apply('end')
 
 end
+
+function ballCollideLeftPlayer()
+    collisionNearness = 1
+    if ballX >= leftPlayerX and ballX < leftPlayerX + + 5 + collisionNearness then
+      if ballY >= leftPlayerY - collisionNearness and ballY <= leftPlayerY + 20 + collisionNearnesss then
+        return true
+      else
+        return false
+      end
+    else
+      return false
+    end
+end
+
+function ballCollideRightPlayer()
+    if ballX >= rightPlayerX and ballX < rightPlayerX + 5 + collisionNearness  then
+      if ballY >= rightPlayerY - collisionNearness and ballY <= rightPlayerY + 20 + collisionNearness then
+        return true
+      else
+        return false
+      end
+    else
+      return false
+    end
+end
+
 
 -- function startBall()
 --
