@@ -18,6 +18,7 @@ ballY = VIRTUAL_HEIGHT / 2 - 2
 ballVx = -100
 ballVy = 0
 
+GAME_STATE = 'play'
 
 PADDLE_SPEED = 250
 
@@ -72,29 +73,49 @@ function love.draw()
 
     love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
 
-    if leftPlayerY >= 0 then
-        leftPlayerY = math.min(leftPlayerY, VIRTUAL_HEIGHT - 20)
-    else
-        leftPlayerY = 0
+    if GAME_STATE == "play" then
+
+        if leftPlayerY >= 0 then
+            leftPlayerY = math.min(leftPlayerY, VIRTUAL_HEIGHT - 20)
+        else
+            leftPlayerY = 0
+        end
+        if rightPlayerY >= 0 then
+            rightPlayerY = math.min(rightPlayerY, VIRTUAL_HEIGHT - 20)
+        else
+            rightPlayerY = 0
+        end
+
+        if ballY < 0 then
+            ballX = 0
+            ballVy = -ballVy
+        elseif ballY > VIRTUAL_HEIGHT then
+            ballY = VIRTUAL_HEIGHT
+            ballVy = -ballVy
+        end
+        if ballX < 0 or ballX > VIRTUAL_WIDTH then
+            GAME_STATE = "end"
+        end
+        leftPaddleCollide = ballCollideLeftPlayer()
+        rightPaddleCollide = ballCollideRightPlayer()
+
+
+        if ballCollideLeftPlayer() then
+          ballVx = -ballVx
+        end
+        if ballCollideRightPlayer() then
+          ballVx = -ballVx
+        end
+        love.graphics.rectangle('fill', 10, leftPlayerY, 5, 20)
+        love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayerY, 5, 20)
+        love.graphics.rectangle('fill', ballX, ballY, 4, 4)
+
+    elseif GAME_STATE == "end" then
+
+        love.graphics.clear(178 / 255, 94 / 255, 212 / 255, 255 / 255)
+        love.graphics.printf('GAME END', 0, 10, VIRTUAL_WIDTH, 'center')
+
     end
-    if rightPlayerY >= 0 then
-        rightPlayerY = math.min(rightPlayerY, VIRTUAL_HEIGHT - 20)
-    else
-        rightPlayerY = 0
-    end
-    leftPaddleCollide = ballCollideLeftPlayer()
-    rightPaddleCollide = ballCollideRightPlayer()
-    print(leftPaddleCollide)
-    print(rightPaddleCollide)
-    if ballCollideLeftPlayer() then
-      ballVx = -ballVx
-    end
-    if ballCollideRightPlayer() then
-      ballVx = -ballVx
-    end
-    love.graphics.rectangle('fill', 10, leftPlayerY, 5, 20)
-    love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayerY, 5, 20)
-    love.graphics.rectangle('fill', ballX, ballY, 4, 4)
 
     push:apply('end')
 
@@ -102,8 +123,8 @@ end
 
 function ballCollideLeftPlayer()
     collisionNearness = 1
-    if ballX >= leftPlayerX and ballX < leftPlayerX + + 5 + collisionNearness then
-      if ballY >= leftPlayerY - collisionNearness and ballY <= leftPlayerY + 20 + collisionNearnesss then
+    if ballX >= leftPlayerX and ballX < leftPlayerX + 5 + collisionNearness then
+      if ballY >= leftPlayerY - collisionNearness and ballY <= leftPlayerY + 20 + collisionNearness then
         return true
       else
         return false
@@ -124,8 +145,3 @@ function ballCollideRightPlayer()
       return false
     end
 end
-
-
--- function startBall()
---
--- end
