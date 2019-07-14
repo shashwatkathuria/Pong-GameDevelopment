@@ -18,7 +18,7 @@ ballY = VIRTUAL_HEIGHT / 2 - 2
 ballVx = -100
 ballVy = 0
 
-GAME_STATE = 'play'
+GAME_STATE = 'start'
 
 PADDLE_SPEED = 250
 
@@ -45,19 +45,26 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
-    ballX = ballX + ballVx * dt
-    ballY = ballY + ballVy * dt
 
-    if love.keyboard.isDown('w') then
-        leftPlayerY = leftPlayerY + -PADDLE_SPEED * dt
-    elseif love.keyboard.isDown('s') then
-        leftPlayerY = leftPlayerY + PADDLE_SPEED * dt
+    if GAME_STATE == "play" then
+        ballX = ballX + ballVx * dt
+        ballY = ballY + ballVy * dt
+
+        if love.keyboard.isDown('w') then
+            leftPlayerY = leftPlayerY + -PADDLE_SPEED * dt
+        elseif love.keyboard.isDown('s') then
+            leftPlayerY = leftPlayerY + PADDLE_SPEED * dt
+        end
+
+        if love.keyboard.isDown('up') then
+            rightPlayerY = rightPlayerY + -PADDLE_SPEED * dt
+        elseif love.keyboard.isDown('down') then
+            rightPlayerY = rightPlayerY + PADDLE_SPEED * dt
+        end
     end
 
-    if love.keyboard.isDown('up') then
-        rightPlayerY = rightPlayerY + -PADDLE_SPEED * dt
-    elseif love.keyboard.isDown('down') then
-        rightPlayerY = rightPlayerY + PADDLE_SPEED * dt
+    if love.keyboard.isDown('space') and GAME_STATE == "start" then
+        GAME_STATE = "play"
     end
 end
 
@@ -67,9 +74,11 @@ function love.draw()
 
     love.graphics.clear(178 / 255, 94 / 255, 212 / 255, 255 / 255)
 
-    love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
-
-    love.graphics.printf('WELCOME  TO  PONG', 0, 10, VIRTUAL_WIDTH, 'center')
+    if GAME_STATE == "start" then
+        love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
+        love.graphics.printf('WELCOME  TO  PONG', 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press Space to play', 0, 10, VIRTUAL_WIDTH, 'center')
+    end
 
     love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
 
@@ -93,9 +102,11 @@ function love.draw()
             ballY = VIRTUAL_HEIGHT
             ballVy = -ballVy
         end
+
         if ballX < 0 or ballX > VIRTUAL_WIDTH then
             GAME_STATE = "end"
         end
+
         leftPaddleCollide = ballCollideLeftPlayer()
         rightPaddleCollide = ballCollideRightPlayer()
 
