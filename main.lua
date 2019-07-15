@@ -27,13 +27,13 @@ function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
 
-    font = love.graphics.newFont('ARCADECLASSIC.ttf', 48)
+    bigFont = love.graphics.newFont("font.ttf", 32)
+    smallFont = love.graphics.newFont("font.ttf", 16)
 
-    love.graphics.setFont(font)
 
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT,{
         fullscreen = false,
-        resizable = false,
+        resizable = true,
         vsync = true
     })
 end
@@ -76,8 +76,10 @@ function love.draw()
 
     if GAME_STATE == "start" then
         love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
+        love.graphics.setFont(bigFont)
         love.graphics.printf('WELCOME  TO  PONG', 0, 10, VIRTUAL_WIDTH, 'center')
-        love.graphics.printf('Press Space to play', 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.setFont(smallFont)
+        love.graphics.printf('Press Space to Start', 0, 50, VIRTUAL_WIDTH, 'center')
     end
 
     love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
@@ -130,6 +132,10 @@ function love.draw()
 
     push:apply('end')
 
+end
+
+function love.resize(w, h)
+    push:resize(w, h)
 end
 
 function ballCollideLeftPlayer()
