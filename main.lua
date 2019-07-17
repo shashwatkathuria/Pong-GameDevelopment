@@ -22,7 +22,7 @@ PADDLE_HEIGHT = 40
 rightPlayerCenter = VIRTUAL_HEIGHT - 50 - PADDLE_HEIGHT / 2
 leftPlayerCenter = 30 + PADDLE_HEIGHT / 2
 
-collisionNearness = 1
+collisionNearness = 3
 
 GAME_STATE = 'start'
 
@@ -75,6 +75,9 @@ function love.update(dt)
         elseif love.keyboard.isDown('s') then
             leftPlayerY = leftPlayerY + PADDLE_SPEED * dt
         end
+
+        leftPlayerCenter = leftPlayerY + PADDLE_HEIGHT / 2
+        rightPlayerCenter = rightPlayerY + PADDLE_HEIGHT / 2
 
         if love.keyboard.isDown('up') then
             rightPlayerY = rightPlayerY - PADDLE_SPEED * dt
@@ -147,8 +150,11 @@ function love.resize(w, h)
 end
 
 function ballCollideLeftPlayer()
+
     if ballX >= leftPlayerX and ballX < leftPlayerX + 5 + collisionNearness then
         if ballY >= leftPlayerY - collisionNearness and ballY <= leftPlayerY + PADDLE_HEIGHT + collisionNearness then
+            sign = (ballY - leftPlayerCenter) > 0 and 1 or -1
+            ballVy = sign * 1.05 * ballVy
             ballVx = -ballVx
             return true
         else
@@ -160,9 +166,11 @@ function ballCollideLeftPlayer()
 end
 
 function ballCollideRightPlayer()
+    
     if ballX >= rightPlayerX and ballX < rightPlayerX + 5 + collisionNearness  then
         if ballY >= rightPlayerY - collisionNearness and ballY <= rightPlayerY + PADDLE_HEIGHT + collisionNearness then
-            -- ballVy
+            sign = (ballY - rightPlayerCenter) > 0 and 1 or -1
+            ballVy = sign * 1.05 * ballVy
             ballVx = -ballVx
             return true
         else
