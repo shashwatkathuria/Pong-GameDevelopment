@@ -19,6 +19,7 @@ ballVx = 0
 ballVy = 0
 
 PADDLE_HEIGHT = 40
+PADDLE_WIDTH = 5
 rightPlayerCenter = VIRTUAL_HEIGHT - 50 - PADDLE_HEIGHT / 2
 leftPlayerCenter = 30 + PADDLE_HEIGHT / 2
 
@@ -129,8 +130,8 @@ function love.draw()
         ballCollideLeftPlayer()
         ballCollideRightPlayer()
 
-        love.graphics.rectangle('fill', 10, leftPlayerY, 5, PADDLE_HEIGHT)
-        love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayerY, 5, PADDLE_HEIGHT)
+        love.graphics.rectangle('fill', 10, leftPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT)
+        love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT)
         love.graphics.rectangle('fill', ballX, ballY, 4, 4)
 
     elseif GAME_STATE == "end" then
@@ -151,32 +152,35 @@ end
 
 function ballCollideLeftPlayer()
 
-    if ballX >= leftPlayerX and ballX < leftPlayerX + 5 + collisionNearness then
-        if ballY >= leftPlayerY - collisionNearness and ballY <= leftPlayerY + PADDLE_HEIGHT + collisionNearness then
-            sign = (ballY - leftPlayerCenter) > 0 and 1 or -1
-            ballVy = sign * 1.05 * ballVy
-            ballVx = -ballVx
-            return true
-        else
-            return false
-        end
-    else
-        return false
+    if ballX > leftPlayerX + PADDLE_WIDTH or leftPlayerX > ballX + 4 then
+      return false
     end
+    if ballY > leftPlayerY + PADDLE_HEIGHT or leftPlayerY > ballY + 4 then
+      return false
+    end
+
+    sign = (ballY - leftPlayerCenter) > 0 and 1 or -1
+    ballVy = sign * 1.05 * ballVy
+    ballVx = -ballVx
+    ballX = leftPlayerX + PADDLE_WIDTH
+    
+    return true
+
 end
 
 function ballCollideRightPlayer()
-    
-    if ballX >= rightPlayerX and ballX < rightPlayerX + 5 + collisionNearness  then
-        if ballY >= rightPlayerY - collisionNearness and ballY <= rightPlayerY + PADDLE_HEIGHT + collisionNearness then
-            sign = (ballY - rightPlayerCenter) > 0 and 1 or -1
-            ballVy = sign * 1.05 * ballVy
-            ballVx = -ballVx
-            return true
-        else
-            return false
-        end
-    else
-        return false
+
+    if ballX > rightPlayerX + PADDLE_WIDTH or rightPlayerX > ballX + 4 then
+      return false
     end
+    if ballY > rightPlayerY + PADDLE_HEIGHT or rightPlayerY > ballY + 4 then
+      return false
+    end
+
+    sign = (ballY - rightPlayerCenter) > 0 and 1 or -1
+    ballVy = sign * 1.05 * ballVy
+    ballVx = -ballVx
+    ballX = rightPlayerX - 4
+
+    return true
 end
