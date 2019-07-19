@@ -14,14 +14,15 @@ rightPlayerY = VIRTUAL_HEIGHT - 50
 
 ballX = VIRTUAL_WIDTH / 2 - 2
 ballY = VIRTUAL_HEIGHT / 2 - 2
-
+ballHeight = 4
+ballWidth = 4
 ballVx = 0
 ballVy = 0
 
 PADDLE_HEIGHT = 40
 PADDLE_WIDTH = 5
-rightPlayerCenter = VIRTUAL_HEIGHT - 50 - PADDLE_HEIGHT / 2
-leftPlayerCenter = 30 + PADDLE_HEIGHT / 2
+-- rightPlayerCenter = VIRTUAL_HEIGHT - 50 - PADDLE_HEIGHT / 2
+-- leftPlayerCenter = 30 + PADDLE_HEIGHT / 2
 
 collisionNearness = 3
 
@@ -46,7 +47,7 @@ function love.load()
     })
 
     math.randomseed(os.time())
-    ballVy = 200 * (math.random() - 0.5)
+    ballVy = math.random(-200, 200)
     ballVx = math.random() > 0.5 and 100 or -100
 end
 
@@ -65,7 +66,7 @@ function love.update(dt)
             ballY = 0
             ballVy = -ballVy
         elseif ballY > VIRTUAL_HEIGHT then
-            ballY = VIRTUAL_HEIGHT
+            ballY = VIRTUAL_HEIGHT - ballHeight
             ballVy = -ballVy
         end
         ballX = ballX + ballVx * dt
@@ -77,8 +78,8 @@ function love.update(dt)
             leftPlayerY = leftPlayerY + PADDLE_SPEED * dt
         end
 
-        leftPlayerCenter = leftPlayerY + PADDLE_HEIGHT / 2
-        rightPlayerCenter = rightPlayerY + PADDLE_HEIGHT / 2
+        -- leftPlayerCenter = leftPlayerY + PADDLE_HEIGHT / 2
+        -- rightPlayerCenter = rightPlayerY + PADDLE_HEIGHT / 2
 
         if love.keyboard.isDown('up') then
             rightPlayerY = rightPlayerY - PADDLE_SPEED * dt
@@ -132,7 +133,7 @@ function love.draw()
 
         love.graphics.rectangle('fill', 10, leftPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT)
         love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT)
-        love.graphics.rectangle('fill', ballX, ballY, 4, 4)
+        love.graphics.rectangle('fill', ballX, ballY, ballWidth, ballHeight)
 
     elseif GAME_STATE == "end" then
 
@@ -152,35 +153,33 @@ end
 
 function ballCollideLeftPlayer()
 
-    if ballX > leftPlayerX + PADDLE_WIDTH or leftPlayerX > ballX + 4 then
+    if ballX > leftPlayerX + PADDLE_WIDTH or leftPlayerX > ballX + ballWidth then
       return false
     end
-    if ballY > leftPlayerY + PADDLE_HEIGHT or leftPlayerY > ballY + 4 then
+    if ballY > leftPlayerY + PADDLE_HEIGHT or leftPlayerY > ballY + ballHeight then
       return false
     end
 
-    sign = (ballY - leftPlayerCenter) > 0 and 1 or -1
-    ballVy = sign * 1.05 * ballVy
-    ballVx = -ballVx
+    ballVy = ballVy
+    ballVx = -ballVx * 1.05
     ballX = leftPlayerX + PADDLE_WIDTH
-    
+
     return true
 
 end
 
 function ballCollideRightPlayer()
 
-    if ballX > rightPlayerX + PADDLE_WIDTH or rightPlayerX > ballX + 4 then
+    if ballX > rightPlayerX + PADDLE_WIDTH or rightPlayerX > ballX + ballWidth then
       return false
     end
-    if ballY > rightPlayerY + PADDLE_HEIGHT or rightPlayerY > ballY + 4 then
+    if ballY > rightPlayerY + PADDLE_HEIGHT or rightPlayerY > ballY + ballHeight then
       return false
     end
 
-    sign = (ballY - rightPlayerCenter) > 0 and 1 or -1
-    ballVy = sign * 1.05 * ballVy
-    ballVx = -ballVx
-    ballX = rightPlayerX - 4
+    ballVy = ballVy
+    ballVx = -ballVx * 1.05
+    ballX = rightPlayerX - ballWidth
 
     return true
 end
