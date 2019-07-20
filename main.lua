@@ -9,8 +9,10 @@ VIRTUAL_HEIGHT = 243
 
 leftPlayerX = 10
 leftPlayerY = 30
+leftPlayerScore = 0
 rightPlayerX = VIRTUAL_WIDTH - 10
 rightPlayerY = VIRTUAL_HEIGHT - 50
+rightPlayerScore = 0
 
 ballX = VIRTUAL_WIDTH / 2 - 2
 ballY = VIRTUAL_HEIGHT / 2 - 2
@@ -18,6 +20,7 @@ ballHeight = 4
 ballWidth = 4
 ballVx = 0
 ballVy = 0
+winner = "none"
 
 PADDLE_HEIGHT = 40
 PADDLE_WIDTH = 5
@@ -48,7 +51,7 @@ function love.load()
 
     math.randomseed(os.time())
     ballVy = math.random(-200, 200)
-    ballVx = math.random() > 0.5 and 100 or -100
+    ballVx = math.random(-200, 200)
 end
 
 function love.keypressed(key)
@@ -78,9 +81,6 @@ function love.update(dt)
             leftPlayerY = leftPlayerY + PADDLE_SPEED * dt
         end
 
-        -- leftPlayerCenter = leftPlayerY + PADDLE_HEIGHT / 2
-        -- rightPlayerCenter = rightPlayerY + PADDLE_HEIGHT / 2
-
         if love.keyboard.isDown('up') then
             rightPlayerY = rightPlayerY - PADDLE_SPEED * dt
         elseif love.keyboard.isDown('down') then
@@ -88,7 +88,7 @@ function love.update(dt)
         end
     end
 
-    if love.keyboard.isDown('space') and GAME_STATE == "start" then
+    if love.keyboard.isDown('space') and (GAME_STATE == "start" or GAME_STATE == "serve") then
         GAME_STATE = "play"
     end
 
@@ -106,12 +106,14 @@ function love.draw()
         love.graphics.printf('WELCOME  TO  PONG', 0, 10, VIRTUAL_WIDTH, 'center')
         love.graphics.setFont(smallFont)
         love.graphics.printf('Press Space to Start', 0, 50, VIRTUAL_WIDTH, 'center')
-    end
+    elseif GAME_STATE == "serve" then
+        love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
+        love.graphics.setFont(smallFont)
+        love.graphics.printf('Score : ' .. tostring(leftPlayerScore), 0, 10, VIRTUAL_WIDTH / 2, 'center')
+        love.graphics.printf('Score : ' .. tostring(rightPlayerScore), VIRTUAL_WIDTH / 2, 10, VIRTUAL_WIDTH / 2, 'center')
 
-    love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
-
-    if GAME_STATE == "play" then
-
+    elseif GAME_STATE == "play" then
+        love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
         if leftPlayerY >= 0 then
             leftPlayerY = math.min(leftPlayerY, VIRTUAL_HEIGHT - PADDLE_HEIGHT)
         else
@@ -124,12 +126,39 @@ function love.draw()
         end
 
 
-        if ballX < 0 or ballX > VIRTUAL_WIDTH then
-            GAME_STATE = "end"
+        if ballX < 0 then
+
+          rightPlayerScore = rightPlayerScore + 1
+          ballX = VIRTUAL_WIDTH / 2 - 2
+          ballY = VIRTUAL_HEIGHT / 2 - 2
+          if rightPlayerScore == 5 then
+              GAME_STATE = "end"
+              winner = "Right"
+          else
+              GAME_STATE = "serve"
+          end
+
+        elseif ballX > VIRTUAL_WIDTH then
+
+
+            leftPlayerScore = leftPlayerScore + 1
+            ballX = VIRTUAL_WIDTH / 2 - 2
+            ballY = VIRTUAL_HEIGHT / 2 - 2
+            if leftPlayerScore == 5 then
+                GAME_STATE = "end"
+                winner = "Left"
+            else
+                GAME_STATE = "serve"
+            end
         end
 
-        ballCollideLeftPlayer()
-        ballCollideRightPlayer()
+        if ballCollideLeftPlayer() then
+            updateBallOnCollisionWithLeft()
+        end
+
+        if ballCollideRightPlayer() then
+            updateBallOnCollisionWithRight()
+        end
 
         love.graphics.rectangle('fill', 10, leftPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT)
         love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT)
@@ -140,6 +169,8 @@ function love.draw()
         love.graphics.clear(178 / 255, 94 / 255, 212 / 255, 255 / 255)
         love.graphics.setFont(bigFont)
         love.graphics.printf('GAME END', 0, VIRTUAL_HEIGHT / 2 - 30, VIRTUAL_WIDTH, 'center')
+        love.graphics.setFont(smallFont)
+        love.graphics.printf(winner .. " Player wins the game!", 0, VIRTUAL_HEIGHT / 2 + 30, VIRTUAL_WIDTH, 'center')
 
     end
 
@@ -160,10 +191,6 @@ function ballCollideLeftPlayer()
       return false
     end
 
-    ballVy = ballVy
-    ballVx = -ballVx * 1.05
-    ballX = leftPlayerX + PADDLE_WIDTH
-
     return true
 
 end
@@ -177,9 +204,17 @@ function ballCollideRightPlayer()
       return false
     end
 
+    return true
+end
+
+function updateBallOnCollisionWithLeft()
+    ballVy = ballVy
+    ballVx = -ballVx * 1.05
+    ballX = leftPlayerX + PADDLE_WIDTH
+end
+
+function updateBallOnCollisionWithRight()
     ballVy = ballVy
     ballVx = -ballVx * 1.05
     ballX = rightPlayerX - ballWidth
-
-    return true
 end
