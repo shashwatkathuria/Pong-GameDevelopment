@@ -50,8 +50,8 @@ function love.load()
     })
 
     math.randomseed(os.time())
-    ballVy = math.random(-200, 200)
-    ballVx = math.random(-200, 200)
+    ballVy = math.random(-300, 300)
+    ballVx = math.random(-300, 300)
 end
 
 function love.keypressed(key)
@@ -111,6 +111,8 @@ function love.draw()
         love.graphics.setFont(smallFont)
         love.graphics.printf('Score : ' .. tostring(leftPlayerScore), 0, 10, VIRTUAL_WIDTH / 2, 'center')
         love.graphics.printf('Score : ' .. tostring(rightPlayerScore), VIRTUAL_WIDTH / 2, 10, VIRTUAL_WIDTH / 2, 'center')
+        ballVy = math.random(-300, 300)
+        ballVx = math.random(-300, 300)
 
     elseif GAME_STATE == "play" then
         love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
