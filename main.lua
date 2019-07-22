@@ -50,8 +50,7 @@ function love.load()
     })
 
     math.randomseed(os.time())
-    ballVy = math.random(-300, 300)
-    ballVx = math.random(-300, 300)
+    resetBall()
 end
 
 function love.keypressed(key)
@@ -111,8 +110,7 @@ function love.draw()
         love.graphics.setFont(smallFont)
         love.graphics.printf('Score : ' .. tostring(leftPlayerScore), 0, 10, VIRTUAL_WIDTH / 2, 'center')
         love.graphics.printf('Score : ' .. tostring(rightPlayerScore), VIRTUAL_WIDTH / 2, 10, VIRTUAL_WIDTH / 2, 'center')
-        ballVy = math.random(-300, 300)
-        ballVx = math.random(-300, 300)
+        resetBall()
 
     elseif GAME_STATE == "play" then
         love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
@@ -131,8 +129,6 @@ function love.draw()
         if ballX < 0 then
 
           rightPlayerScore = rightPlayerScore + 1
-          ballX = VIRTUAL_WIDTH / 2 - 2
-          ballY = VIRTUAL_HEIGHT / 2 - 2
           if rightPlayerScore == 5 then
               GAME_STATE = "end"
               winner = "Right"
@@ -141,11 +137,7 @@ function love.draw()
           end
 
         elseif ballX > VIRTUAL_WIDTH then
-
-
             leftPlayerScore = leftPlayerScore + 1
-            ballX = VIRTUAL_WIDTH / 2 - 2
-            ballY = VIRTUAL_HEIGHT / 2 - 2
             if leftPlayerScore == 5 then
                 GAME_STATE = "end"
                 winner = "Left"
@@ -219,4 +211,11 @@ function updateBallOnCollisionWithRight()
     ballVy = ballVy
     ballVx = -ballVx * 1.05
     ballX = rightPlayerX - ballWidth
+end
+
+function resetBall()
+    ballVy = math.random(-300, 300)
+    ballVx = math.random() > 0.5 and 150 or -150
+    ballX = VIRTUAL_WIDTH / 2 - 2
+    ballY = VIRTUAL_HEIGHT / 2 - 2
 end
