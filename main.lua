@@ -1,5 +1,8 @@
 push = require 'push'
 math = require 'math'
+Class = require 'class'
+
+require 'Ball'
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -14,12 +17,6 @@ rightPlayerX = VIRTUAL_WIDTH - 10
 rightPlayerY = VIRTUAL_HEIGHT - 50
 rightPlayerScore = 0
 
-ballX = VIRTUAL_WIDTH / 2 - 2
-ballY = VIRTUAL_HEIGHT / 2 - 2
-ballHeight = 4
-ballWidth = 4
-ballVx = 0
-ballVy = 0
 winner = "none"
 
 PADDLE_HEIGHT = 40
@@ -49,8 +46,9 @@ function love.load()
         vsync = true
     })
 
+    ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
     math.randomseed(os.time())
-    resetBall()
+    ball:reset()
 end
 
 function love.keypressed(key)
@@ -64,15 +62,15 @@ end
 function love.update(dt)
 
     if GAME_STATE == "play" then
-        if ballY < 0 then
-            ballY = 0
-            ballVy = -ballVy
-        elseif ballY > VIRTUAL_HEIGHT then
-            ballY = VIRTUAL_HEIGHT - ballHeight
-            ballVy = -ballVy
+        if ball.y < 0 then
+            ball.y = 0
+            ball.vy = -ball.vy
+        elseif ball.y > VIRTUAL_HEIGHT then
+            ball.y = VIRTUAL_HEIGHT - ball.height
+            ball.vy = -ball.vy
         end
-        ballX = ballX + ballVx * dt
-        ballY = ballY + ballVy * dt
+        ball.x = ball.x + ball.vx * dt
+        ball.y = ball.y + ball.vy * dt
 
         if love.keyboard.isDown('w') then
             leftPlayerY = leftPlayerY - PADDLE_SPEED * dt
@@ -110,7 +108,7 @@ function love.draw()
         love.graphics.setFont(smallFont)
         love.graphics.printf('Score : ' .. tostring(leftPlayerScore), 0, 10, VIRTUAL_WIDTH / 2, 'center')
         love.graphics.printf('Score : ' .. tostring(rightPlayerScore), VIRTUAL_WIDTH / 2, 10, VIRTUAL_WIDTH / 2, 'center')
-        resetBall()
+        ball:reset()
 
     elseif GAME_STATE == "play" then
         love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
@@ -126,7 +124,7 @@ function love.draw()
         end
 
 
-        if ballX < 0 then
+        if ball.x < 0 then
 
           rightPlayerScore = rightPlayerScore + 1
           if rightPlayerScore == 5 then
@@ -136,7 +134,7 @@ function love.draw()
               GAME_STATE = "serve"
           end
 
-        elseif ballX > VIRTUAL_WIDTH then
+        elseif ball.x > VIRTUAL_WIDTH then
             leftPlayerScore = leftPlayerScore + 1
             if leftPlayerScore == 5 then
                 GAME_STATE = "end"
@@ -147,16 +145,16 @@ function love.draw()
         end
 
         if ballCollideLeftPlayer() then
-            updateBallOnCollisionWithLeft()
+            ball:updateOnCollisionWithLeft()
         end
 
         if ballCollideRightPlayer() then
-            updateBallOnCollisionWithRight()
+            ball:updateOnCollisionWithRight()
         end
 
         love.graphics.rectangle('fill', 10, leftPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT)
         love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT)
-        love.graphics.rectangle('fill', ballX, ballY, ballWidth, ballHeight)
+        love.graphics.rectangle('fill', ball.x, ball.y, ball.width, ball.height)
 
     elseif GAME_STATE == "end" then
 
@@ -178,10 +176,10 @@ end
 
 function ballCollideLeftPlayer()
 
-    if ballX > leftPlayerX + PADDLE_WIDTH or leftPlayerX > ballX + ballWidth then
+    if ball.x > leftPlayerX + PADDLE_WIDTH or leftPlayerX > ball.x + ball.width then
       return false
     end
-    if ballY > leftPlayerY + PADDLE_HEIGHT or leftPlayerY > ballY + ballHeight then
+    if ball.y > leftPlayerY + PADDLE_HEIGHT or leftPlayerY > ball.y + ball.height then
       return false
     end
 
@@ -191,31 +189,12 @@ end
 
 function ballCollideRightPlayer()
 
-    if ballX > rightPlayerX + PADDLE_WIDTH or rightPlayerX > ballX + ballWidth then
+    if ball.x > rightPlayerX + PADDLE_WIDTH or rightPlayerX > ball.x + ball.width then
       return false
     end
-    if ballY > rightPlayerY + PADDLE_HEIGHT or rightPlayerY > ballY + ballHeight then
+    if ball.y > rightPlayerY + PADDLE_HEIGHT or rightPlayerY > ball.y + ball.height then
       return false
     end
 
     return true
-end
-
-function updateBallOnCollisionWithLeft()
-    ballVy = ballVy
-    ballVx = -ballVx * 1.05
-    ballX = leftPlayerX + PADDLE_WIDTH
-end
-
-function updateBallOnCollisionWithRight()
-    ballVy = ballVy
-    ballVx = -ballVx * 1.05
-    ballX = rightPlayerX - ballWidth
-end
-
-function resetBall()
-    ballVy = math.random(-300, 300)
-    ballVx = math.random() > 0.5 and 150 or -150
-    ballX = VIRTUAL_WIDTH / 2 - 2
-    ballY = VIRTUAL_HEIGHT / 2 - 2
 end
