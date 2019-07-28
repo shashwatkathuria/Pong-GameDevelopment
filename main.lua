@@ -3,6 +3,7 @@ math = require 'math'
 Class = require 'class'
 
 require 'Ball'
+require 'Paddle'
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -47,6 +48,8 @@ function love.load()
     })
 
     ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
+    leftPlayer = Paddle(leftPlayerX, leftPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+    rightPlayer = Paddle(rightPlayerX, rightPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
     math.randomseed(os.time())
     ball:reset()
 end
@@ -73,15 +76,15 @@ function love.update(dt)
         ball.y = ball.y + ball.vy * dt
 
         if love.keyboard.isDown('w') then
-            leftPlayerY = leftPlayerY - PADDLE_SPEED * dt
+            leftPlayer.y = leftPlayer.y - leftPlayer.speed * dt
         elseif love.keyboard.isDown('s') then
-            leftPlayerY = leftPlayerY + PADDLE_SPEED * dt
+            leftPlayer.y = leftPlayer.y + leftPlayer.speed * dt
         end
 
         if love.keyboard.isDown('up') then
-            rightPlayerY = rightPlayerY - PADDLE_SPEED * dt
+            rightPlayer.y = rightPlayer.y - rightPlayer.speed * dt
         elseif love.keyboard.isDown('down') then
-            rightPlayerY = rightPlayerY + PADDLE_SPEED * dt
+            rightPlayer.y = rightPlayer.y + rightPlayer.speed * dt
         end
     end
 
@@ -106,28 +109,28 @@ function love.draw()
     elseif GAME_STATE == "serve" then
         love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
         love.graphics.setFont(smallFont)
-        love.graphics.printf('Score : ' .. tostring(leftPlayerScore), 0, 10, VIRTUAL_WIDTH / 2, 'center')
-        love.graphics.printf('Score : ' .. tostring(rightPlayerScore), VIRTUAL_WIDTH / 2, 10, VIRTUAL_WIDTH / 2, 'center')
+        love.graphics.printf('Score : ' .. tostring(leftPlayer.score), 0, 10, VIRTUAL_WIDTH / 2, 'center')
+        love.graphics.printf('Score : ' .. tostring(rightPlayer.score), VIRTUAL_WIDTH / 2, 10, VIRTUAL_WIDTH / 2, 'center')
         ball:reset()
 
     elseif GAME_STATE == "play" then
         love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
-        if leftPlayerY >= 0 then
-            leftPlayerY = math.min(leftPlayerY, VIRTUAL_HEIGHT - PADDLE_HEIGHT)
+        if leftPlayer.y >= 0 then
+            leftPlayer.y = math.min(leftPlayer.y, VIRTUAL_HEIGHT - leftPlayer.height)
         else
-            leftPlayerY = 0
+            leftPlayer.y = 0
         end
-        if rightPlayerY >= 0 then
-            rightPlayerY = math.min(rightPlayerY, VIRTUAL_HEIGHT - PADDLE_HEIGHT)
+        if rightPlayer.y >= 0 then
+            rightPlayer.y = math.min(rightPlayer.y, VIRTUAL_HEIGHT - rightPlayer.height)
         else
-            rightPlayerY = 0
+            rightPlayer.y = 0
         end
 
 
         if ball.x < 0 then
 
-          rightPlayerScore = rightPlayerScore + 1
-          if rightPlayerScore == 5 then
+          rightPlayer.score = rightPlayer.score + 1
+          if rightPlayer.score == 5 then
               GAME_STATE = "end"
               winner = "Right"
           else
@@ -135,8 +138,8 @@ function love.draw()
           end
 
         elseif ball.x > VIRTUAL_WIDTH then
-            leftPlayerScore = leftPlayerScore + 1
-            if leftPlayerScore == 5 then
+            leftPlayer.score = leftPlayer.score + 1
+            if leftPlayer.score == 5 then
                 GAME_STATE = "end"
                 winner = "Left"
             else
@@ -144,16 +147,16 @@ function love.draw()
             end
         end
 
-        if ballCollideLeftPlayer() then
+        if ball:hasCollided(leftPlayer) then
             ball:updateOnCollisionWithLeft()
         end
 
-        if ballCollideRightPlayer() then
+        if ball:hasCollided(rightPlayer) then
             ball:updateOnCollisionWithRight()
         end
 
-        love.graphics.rectangle('fill', 10, leftPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT)
-        love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT)
+        love.graphics.rectangle('fill', 10, leftPlayer.y, leftPlayer.width, leftPlayer.height)
+        love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayer.y, rightPlayer.width, rightPlayer.height)
         love.graphics.rectangle('fill', ball.x, ball.y, ball.width, ball.height)
 
     elseif GAME_STATE == "end" then
@@ -172,29 +175,4 @@ end
 
 function love.resize(w, h)
     push:resize(w, h)
-end
-
-function ballCollideLeftPlayer()
-
-    if ball.x > leftPlayerX + PADDLE_WIDTH or leftPlayerX > ball.x + ball.width then
-      return false
-    end
-    if ball.y > leftPlayerY + PADDLE_HEIGHT or leftPlayerY > ball.y + ball.height then
-      return false
-    end
-
-    return true
-
-end
-
-function ballCollideRightPlayer()
-
-    if ball.x > rightPlayerX + PADDLE_WIDTH or rightPlayerX > ball.x + ball.width then
-      return false
-    end
-    if ball.y > rightPlayerY + PADDLE_HEIGHT or rightPlayerY > ball.y + ball.height then
-      return false
-    end
-
-    return true
 end
