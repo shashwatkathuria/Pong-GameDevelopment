@@ -21,6 +21,7 @@ Type the following commands in sequential order to run the game:
 
               sudo apt install lua      (To install lua)
               sudo snap install love    (To intall love2d framework)
+              [ignore above two commands if already installed] 
               love .               
 
 ----------------------------
