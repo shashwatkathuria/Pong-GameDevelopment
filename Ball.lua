@@ -31,3 +31,14 @@ function Ball:updateOnCollisionWithRight()
     self.vx = -self.vx * 1.05
     self.x = rightPlayerX - self.width
 end
+
+function Ball:hasCollided(paddle)
+    if ball.x > paddle.x + paddle.width or paddle.x > ball.x + ball.width then
+      return false
+    end
+    if ball.y > paddle.y + paddle.height or paddle.y > ball.y + ball.height then
+      return false
+    end
+
+    return true
+end
