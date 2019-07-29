@@ -65,26 +65,18 @@ end
 function love.update(dt)
 
     if GAME_STATE == "play" then
-        if ball.y < 0 then
-            ball.y = 0
-            ball.vy = -ball.vy
-        elseif ball.y > VIRTUAL_HEIGHT then
-            ball.y = VIRTUAL_HEIGHT - ball.height
-            ball.vy = -ball.vy
-        end
-        ball.x = ball.x + ball.vx * dt
-        ball.y = ball.y + ball.vy * dt
+        ball:update(dt)
 
         if love.keyboard.isDown('w') then
-            leftPlayer.y = leftPlayer.y - leftPlayer.speed * dt
+            leftPlayer:update('moveUp', dt)
         elseif love.keyboard.isDown('s') then
-            leftPlayer.y = leftPlayer.y + leftPlayer.speed * dt
+            leftPlayer:update('moveDown', dt)
         end
 
         if love.keyboard.isDown('up') then
-            rightPlayer.y = rightPlayer.y - rightPlayer.speed * dt
+            rightPlayer:update('moveUp', dt)
         elseif love.keyboard.isDown('down') then
-            rightPlayer.y = rightPlayer.y + rightPlayer.speed * dt
+            rightPlayer:update('moveDown', dt)
         end
     end
 
@@ -115,16 +107,6 @@ function love.draw()
 
     elseif GAME_STATE == "play" then
         love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
-        if leftPlayer.y >= 0 then
-            leftPlayer.y = math.min(leftPlayer.y, VIRTUAL_HEIGHT - leftPlayer.height)
-        else
-            leftPlayer.y = 0
-        end
-        if rightPlayer.y >= 0 then
-            rightPlayer.y = math.min(rightPlayer.y, VIRTUAL_HEIGHT - rightPlayer.height)
-        else
-            rightPlayer.y = 0
-        end
 
 
         if ball.x < 0 then
