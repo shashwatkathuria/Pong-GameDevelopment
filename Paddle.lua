@@ -16,3 +16,18 @@ function Paddle:reset(x, y)
     self.x = x
     self.y = y
 end
+
+function Paddle:update(move, dt)
+    if move == "moveUp" then
+        self.y = self.y - self.speed * dt
+    elseif move == "moveDown" then
+        self.y = self.y + self.speed * dt
+    end
+
+    if self.y >= 0 then
+        self.y = math.min(self.y, VIRTUAL_HEIGHT - self.height)
+    else
+        self.y = 0
+    end
+    
+end
