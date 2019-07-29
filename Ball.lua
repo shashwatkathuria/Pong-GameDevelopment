@@ -33,12 +33,24 @@ function Ball:updateOnCollisionWithRight()
 end
 
 function Ball:hasCollided(paddle)
-    if ball.x > paddle.x + paddle.width or paddle.x > ball.x + ball.width then
+    if self.x > paddle.x + paddle.width or paddle.x > self.x + self.width then
       return false
     end
-    if ball.y > paddle.y + paddle.height or paddle.y > ball.y + ball.height then
+    if self.y > paddle.y + paddle.height or paddle.y > self.y + self.height then
       return false
     end
 
     return true
+end
+
+function Ball:update(dt)
+    if self.y < 0 then
+        self.y = 0
+        self.vy = -self.vy
+    elseif self.y > VIRTUAL_HEIGHT then
+        self.y = VIRTUAL_HEIGHT - self.height
+        self.vy = -self.vy
+    end
+    self.x = self.x + self.vx * dt
+    self.y = self.y + self.vy * dt
 end
