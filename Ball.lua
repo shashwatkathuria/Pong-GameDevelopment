@@ -47,7 +47,7 @@ function Ball:update(dt)
     if self.y < 0 then
         self.y = 0
         self.vy = -self.vy
-    elseif self.y > VIRTUAL_HEIGHT then
+    elseif self.y > VIRTUAL_HEIGHT - self.height then
         self.y = VIRTUAL_HEIGHT - self.height
         self.vy = -self.vy
     end
