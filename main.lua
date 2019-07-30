@@ -19,7 +19,7 @@ rightPlayerY = VIRTUAL_HEIGHT - 50
 rightPlayerScore = 0
 
 winner = "none"
-
+countdownTime = 0
 PADDLE_HEIGHT = 40
 PADDLE_WIDTH = 5
 -- rightPlayerCenter = VIRTUAL_HEIGHT - 50 - PADDLE_HEIGHT / 2
@@ -81,14 +81,21 @@ function love.update(dt)
     end
 
     if love.keyboard.isDown('space') and (GAME_STATE == "start" or GAME_STATE == "serve") then
-        GAME_STATE = "play"
+        GAME_STATE = "countdown"
+        countdown = 3
+        countdownTime = countdownTime + dt
+
+    end
+
+    if GAME_STATE == "countdown" then
+        countdownTime = countdownTime + dt
     end
 
 end
 
 function love.draw()
 
-    push:apply('start')
+    push:start()
 
     love.graphics.clear(178 / 255, 94 / 255, 212 / 255, 255 / 255)
 
@@ -104,6 +111,19 @@ function love.draw()
         love.graphics.printf('Score : ' .. tostring(leftPlayer.score), 0, 10, VIRTUAL_WIDTH / 2, 'center')
         love.graphics.printf('Score : ' .. tostring(rightPlayer.score), VIRTUAL_WIDTH / 2, 10, VIRTUAL_WIDTH / 2, 'center')
         ball:reset()
+
+    elseif GAME_STATE == "countdown" then
+        if countdownTime > 1 then
+            countdown = countdown - 1
+            countdownTime = countdownTime % 1
+        end
+        love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
+        love.graphics.setFont(smallFont)
+        love.graphics.printf('Starting in ' .. tostring(countdown), 0, VIRTUAL_HEIGHT / 2, VIRTUAL_WIDTH, 'center')
+
+        if countdown == 0 then
+            GAME_STATE = "play"
+        end
 
     elseif GAME_STATE == "play" then
         love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
@@ -151,7 +171,7 @@ function love.draw()
 
     end
 
-    push:apply('end')
+    push:finish()
 
 end
 
