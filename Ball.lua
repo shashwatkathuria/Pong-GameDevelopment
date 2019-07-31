@@ -20,16 +20,18 @@ function Ball:reset()
     self.y = VIRTUAL_HEIGHT / 2 - 2
 end
 
-function Ball:updateOnCollisionWithLeft()
-    self.vy = self.vy
-    self.vx = -self.vx * 1.05
-    self.x = leftPlayerX + PADDLE_WIDTH
-end
+function Ball:updateOnCollision(player, paddle)
 
-function Ball:updateOnCollisionWithRight()
-    self.vy = self.vy
-    self.vx = -self.vx * 1.05
-    self.x = rightPlayerX - self.width
+    if player == "left" then
+        self.vy = self.vy
+        self.vx = -self.vx * 1.05
+        self.x = paddle.x + paddle.width
+    elseif player == "right" then
+        self.vy = self.vy
+        self.vx = -self.vx * 1.05
+        self.x = paddle.x - self.width
+
+    end
 end
 
 function Ball:hasCollided(paddle)
