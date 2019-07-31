@@ -18,6 +18,8 @@ rightPlayerX = VIRTUAL_WIDTH - 10
 rightPlayerY = VIRTUAL_HEIGHT - 50
 rightPlayerScore = 0
 
+countdownInterval = 0.4
+
 winner = "none"
 countdownTime = 0
 PADDLE_HEIGHT = 40
@@ -110,12 +112,13 @@ function love.draw()
         love.graphics.setFont(smallFont)
         love.graphics.printf('Score : ' .. tostring(leftPlayer.score), 0, 10, VIRTUAL_WIDTH / 2, 'center')
         love.graphics.printf('Score : ' .. tostring(rightPlayer.score), VIRTUAL_WIDTH / 2, 10, VIRTUAL_WIDTH / 2, 'center')
+        love.graphics.printf('Press Space to Continue', 0, 50, VIRTUAL_WIDTH, 'center')
         ball:reset()
 
     elseif GAME_STATE == "countdown" then
-        if countdownTime > 1 then
+        if countdownTime > countdownInterval then
             countdown = countdown - 1
-            countdownTime = countdownTime % 1
+            countdownTime = countdownTime % countdownInterval
         end
         love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
         love.graphics.setFont(smallFont)
@@ -150,11 +153,11 @@ function love.draw()
         end
 
         if ball:hasCollided(leftPlayer) then
-            ball:updateOnCollisionWithLeft()
+            ball:updateOnCollision('left', leftPlayer)
         end
 
         if ball:hasCollided(rightPlayer) then
-            ball:updateOnCollisionWithRight()
+            ball:updateOnCollision('right', rightPlayer)
         end
 
         love.graphics.rectangle('fill', 10, leftPlayer.y, leftPlayer.width, leftPlayer.height)
