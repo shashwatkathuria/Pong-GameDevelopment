@@ -21,13 +21,15 @@ function Ball:reset()
 end
 
 function Ball:updateOnCollision(player, paddle)
-
+    print(self.vy)
+    yOffsetVelocity = 1 + ( math.abs(self.y - paddle.centerY) / paddle.height ) / 2
+    print(yOffsetVelocity)
     if player == "left" then
-        self.vy = self.vy
+        self.vy = self.vy * yOffsetVelocity
         self.vx = -self.vx * 1.05
         self.x = paddle.x + paddle.width
     elseif player == "right" then
-        self.vy = self.vy
+        self.vy = self.vy * yOffsetVelocity
         self.vx = -self.vx * 1.05
         self.x = paddle.x - self.width
 
