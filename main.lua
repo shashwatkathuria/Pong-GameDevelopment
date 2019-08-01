@@ -11,22 +11,20 @@ WINDOW_HEIGHT = 720
 VIRTUAL_WIDTH = 432
 VIRTUAL_HEIGHT = 243
 
-countdownInterval = 0.4
+countdownInterval = 0.7
+countdownTime = 0
 
 winner = "none"
-countdownTime = 0
+
 PADDLE_HEIGHT = 40
 PADDLE_WIDTH = 5
--- rightPlayerCenter = VIRTUAL_HEIGHT - 50 - PADDLE_HEIGHT / 2
--- leftPlayerCenter = 30 + PADDLE_HEIGHT / 2
+PADDLE_SPEED = 250
 
 collisionNearness = 3
 
-GAME_STATE = 'start'
-
-PADDLE_SPEED = 250
 
 function love.load()
+    GAME_STATE = 'start'
 
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
@@ -55,7 +53,12 @@ function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
     end
-
+    if GAME_STATE == "end" and key == 'return' then
+        GAME_STATE = "start"
+        ball:reset()
+        leftPlayer:reset(10, 30)
+        rightPlayer:reset(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 50)
+    end
 end
 
 function love.update(dt)
@@ -74,6 +77,9 @@ function love.update(dt)
         elseif love.keyboard.isDown('down') then
             rightPlayer:update('moveDown', dt)
         end
+
+    elseif GAME_STATE == "countdown" then
+        countdownTime = countdownTime + dt
     end
 
     if love.keyboard.isDown('space') and (GAME_STATE == "start" or GAME_STATE == "serve") then
@@ -83,9 +89,7 @@ function love.update(dt)
 
     end
 
-    if GAME_STATE == "countdown" then
-        countdownTime = countdownTime + dt
-    end
+
 
 end
 
@@ -98,15 +102,19 @@ function love.draw()
     if GAME_STATE == "start" then
         love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
         love.graphics.setFont(bigFont)
-        love.graphics.printf('WELCOME  TO  PONG', 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('WELCOME  TO  PONG', 0, VIRTUAL_HEIGHT / 2 - 16, VIRTUAL_WIDTH, 'center')
         love.graphics.setFont(smallFont)
-        love.graphics.printf('Press Space to Start', 0, 50, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press Space to Start', 0, VIRTUAL_HEIGHT - 24, VIRTUAL_WIDTH, 'center')
     elseif GAME_STATE == "serve" then
         love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
+        love.graphics.setFont(bigFont)
+        love.graphics.printf('SCORE', 0, 5, VIRTUAL_WIDTH, 'center')
         love.graphics.setFont(biggestFont)
         love.graphics.printf(tostring(leftPlayer.score), 0, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH / 2, 'center')
         love.graphics.printf(tostring(rightPlayer.score), VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH / 2, 'center')
         love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 6, 4, VIRTUAL_HEIGHT - VIRTUAL_HEIGHT / 3)
+        love.graphics.setFont(smallFont)
+        love.graphics.printf('Press Space to Continue', 0, VIRTUAL_HEIGHT - 24, VIRTUAL_WIDTH, 'center')
         ball:reset()
 
     elseif GAME_STATE == "countdown" then
@@ -115,8 +123,8 @@ function love.draw()
             countdownTime = countdownTime % countdownInterval
         end
         love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
-        love.graphics.setFont(smallFont)
-        love.graphics.printf('Starting in ' .. tostring(countdown), 0, VIRTUAL_HEIGHT / 2 - 8, VIRTUAL_WIDTH, 'center')
+        love.graphics.setFont(biggestFont)
+        love.graphics.printf(tostring(countdown), 0, VIRTUAL_HEIGHT / 2 - 24, VIRTUAL_WIDTH, 'center')
 
         if countdown == 0 then
             GAME_STATE = "play"
@@ -161,10 +169,12 @@ function love.draw()
     elseif GAME_STATE == "end" then
 
         love.graphics.clear(104 / 255, 118 / 255, 140 / 255, 255 / 255)
+        love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
         love.graphics.setFont(bigFont)
         love.graphics.printf('GAME END', 0, VIRTUAL_HEIGHT / 2 - 30, VIRTUAL_WIDTH, 'center')
         love.graphics.setFont(smallFont)
         love.graphics.printf(winner .. " Player wins the game!", 0, VIRTUAL_HEIGHT / 2 + 30, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press Enter for Rematch', 0, VIRTUAL_HEIGHT - 24, VIRTUAL_WIDTH, 'center')
 
     end
 
