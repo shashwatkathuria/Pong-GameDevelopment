@@ -11,13 +11,6 @@ WINDOW_HEIGHT = 720
 VIRTUAL_WIDTH = 432
 VIRTUAL_HEIGHT = 243
 
-leftPlayerX = 10
-leftPlayerY = 30
-leftPlayerScore = 0
-rightPlayerX = VIRTUAL_WIDTH - 10
-rightPlayerY = VIRTUAL_HEIGHT - 50
-rightPlayerScore = 0
-
 countdownInterval = 0.4
 
 winner = "none"
@@ -38,6 +31,7 @@ function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
 
+    biggestFont = love.graphics.newFont("font.ttf", 48)
     bigFont = love.graphics.newFont("font.ttf", 32)
     smallFont = love.graphics.newFont("font.ttf", 16)
 
@@ -50,8 +44,8 @@ function love.load()
     })
 
     ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
-    leftPlayer = Paddle(leftPlayerX, leftPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
-    rightPlayer = Paddle(rightPlayerX, rightPlayerY, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+    leftPlayer = Paddle(10, 30, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+    rightPlayer = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 50, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
     math.randomseed(os.time())
     ball:reset()
 end
@@ -99,7 +93,7 @@ function love.draw()
 
     push:start()
 
-    love.graphics.clear(178 / 255, 94 / 255, 212 / 255, 255 / 255)
+    love.graphics.clear(104 / 255, 118 / 255, 140 / 255, 255 / 255)
 
     if GAME_STATE == "start" then
         love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
@@ -109,10 +103,10 @@ function love.draw()
         love.graphics.printf('Press Space to Start', 0, 50, VIRTUAL_WIDTH, 'center')
     elseif GAME_STATE == "serve" then
         love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
-        love.graphics.setFont(smallFont)
-        love.graphics.printf('Score : ' .. tostring(leftPlayer.score), 0, 10, VIRTUAL_WIDTH / 2, 'center')
-        love.graphics.printf('Score : ' .. tostring(rightPlayer.score), VIRTUAL_WIDTH / 2, 10, VIRTUAL_WIDTH / 2, 'center')
-        love.graphics.printf('Press Space to Continue', 0, 50, VIRTUAL_WIDTH, 'center')
+        love.graphics.setFont(biggestFont)
+        love.graphics.printf(tostring(leftPlayer.score), 0, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH / 2, 'center')
+        love.graphics.printf(tostring(rightPlayer.score), VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH / 2, 'center')
+        love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 6, 4, VIRTUAL_HEIGHT - VIRTUAL_HEIGHT / 3)
         ball:reset()
 
     elseif GAME_STATE == "countdown" then
@@ -122,7 +116,7 @@ function love.draw()
         end
         love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
         love.graphics.setFont(smallFont)
-        love.graphics.printf('Starting in ' .. tostring(countdown), 0, VIRTUAL_HEIGHT / 2, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Starting in ' .. tostring(countdown), 0, VIRTUAL_HEIGHT / 2 - 8, VIRTUAL_WIDTH, 'center')
 
         if countdown == 0 then
             GAME_STATE = "play"
@@ -166,7 +160,7 @@ function love.draw()
 
     elseif GAME_STATE == "end" then
 
-        love.graphics.clear(178 / 255, 94 / 255, 212 / 255, 255 / 255)
+        love.graphics.clear(104 / 255, 118 / 255, 140 / 255, 255 / 255)
         love.graphics.setFont(bigFont)
         love.graphics.printf('GAME END', 0, VIRTUAL_HEIGHT / 2 - 30, VIRTUAL_WIDTH, 'center')
         love.graphics.setFont(smallFont)
