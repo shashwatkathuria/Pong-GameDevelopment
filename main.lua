@@ -1,14 +1,14 @@
 
 -- Importing required libraries
 
-push = require 'push'
+push = require 'Libraries/push'
 math = require 'math'
-Class = require 'class'
+Class = require 'Libraries/class'
 
 -- Importing classes defined
 
-require 'Ball'
-require 'Paddle'
+require 'Classes/Ball'
+require 'Classes/Paddle'
 
 -- Defining screen constants
 WINDOW_WIDTH = 1280
@@ -35,9 +35,9 @@ function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
     -- Defining fonts
-    biggestFont = love.graphics.newFont("font.ttf", 48)
-    bigFont = love.graphics.newFont("font.ttf", 32)
-    smallFont = love.graphics.newFont("font.ttf", 16)
+    biggestFont = love.graphics.newFont("Fonts/font.ttf", 48)
+    bigFont = love.graphics.newFont("Fonts/font.ttf", 32)
+    smallFont = love.graphics.newFont("Fonts/font.ttf", 16)
 
     -- Setting window title
     love.window.setTitle("Pong")
