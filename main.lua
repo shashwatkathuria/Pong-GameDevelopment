@@ -10,6 +10,13 @@ Class = require 'Libraries/class'
 require 'Classes/Ball'
 require 'Classes/Paddle'
 
+require 'Classes/StateMachine'
+require 'States/BaseState'
+require 'States/StartState'
+require 'States/PlayState'
+require 'States/ServeState'
+require 'States/CountDownState'
+
 -- Defining screen constants
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -28,8 +35,8 @@ PADDLE_SPEED = 250
 
 function love.load()
 
-    -- Initializing game state to start
-    GAME_STATE = 'start'
+    -- -- Initializing game state to start
+    -- GAME_STATE = 'start'
 
     -- Filter to be nearest
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -49,16 +56,26 @@ function love.load()
         vsync = true
     })
 
-    -- Initializing ball, left and right player
-    ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
-    leftPlayer = Paddle(10, 30, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
-    rightPlayer = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 50, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+    stateMachine = StateMachine {
+        ['start'] = function() return StartState() end,
+        ['play'] = function() return PlayState() end,
+        ['serve'] = function() return ServeState() end,
+        ['countdown'] = function() return CountDownState() end
+    }
 
-    -- Randomizing seed
-    math.randomseed(os.time())
+    stateMachine:change('play')
+    GAME_STATE = "play"
 
-    -- Resetting ball to center
-    ball:reset()
+    -- -- Initializing ball, left and right player
+    -- ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
+    -- leftPlayer = Paddle(10, 30, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+    -- rightPlayer = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 50, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+    --
+    -- -- Randomizing seed
+    -- math.randomseed(os.time())
+    --
+    -- -- Resetting ball to center
+    -- ball:reset()
 
 end
 
@@ -85,25 +102,70 @@ function love.update(dt)
 
     -- Updating ball on each frame
     if GAME_STATE == "play" then
-        ball:update(dt)
-
-        -- Continuous keyboard moves for left player
-        if love.keyboard.isDown('w') then
-            leftPlayer:update('moveUp', dt)
-        elseif love.keyboard.isDown('s') then
-            leftPlayer:update('moveDown', dt)
-        end
-
-        -- Continuous keyboard moves for right player
-        if love.keyboard.isDown('up') then
-            rightPlayer:update('moveUp', dt)
-        elseif love.keyboard.isDown('down') then
-            rightPlayer:update('moveDown', dt)
-        end
+        stateMachine:update(dt)
+        -- ball:update(dt)
+        --
+        -- -- Continuous keyboard moves for left player
+        -- if love.keyboard.isDown('w') then
+        --     leftPlayer:update('moveUp', dt)
+        -- elseif love.keyboard.isDown('s') then
+        --     leftPlayer:update('moveDown', dt)
+        -- end
+        --
+        -- -- Continuous keyboard moves for right player
+        -- if love.keyboard.isDown('up') then
+        --     rightPlayer:update('moveUp', dt)
+        -- elseif love.keyboard.isDown('down') then
+        --     rightPlayer:update('moveDown', dt)
+        -- end
+        --
+        -- -- Incrementing right player score when ball goes to the left of screen
+        -- if ball.x < 0 then
+        --
+        --   rightPlayer.score = rightPlayer.score + 1
+        --
+        --   -- Game ends when scores reaches 5
+        --   if rightPlayer.score == 5 then
+        --       GAME_STATE = "end"
+        --       winner = "Right"
+        --   else
+        --       GAME_STATE = "serve"
+        --   end
+        --
+        -- -- Incrementing left player score when ball goes to the right of screen
+        -- elseif ball.x > VIRTUAL_WIDTH then
+        --
+        --     leftPlayer.score = leftPlayer.score + 1
+        --
+        --     -- Game ends when scores reaches 5
+        --     if leftPlayer.score == 5 then
+        --         GAME_STATE = "end"
+        --         winner = "Left"
+        --     else
+        --         GAME_STATE = "serve"
+        --     end
+        --
+        -- end
+        --
+        -- -- Updating ball if it collides with left player
+        -- if ball:hasCollided(leftPlayer) then
+        --     ball:updateOnCollision('left', leftPlayer)
+        -- end
+        --
+        -- -- Updating ball if it collides with right player
+        -- if ball:hasCollided(rightPlayer) then
+        --     ball:updateOnCollision('right', rightPlayer)
+        -- end
 
     -- Incrementing countdownTime by required amount
     elseif GAME_STATE == "countdown" then
         countdownTime = countdownTime + dt
+
+        -- Countdown algorithm with interval as countdownInterval
+        if countdownTime > countdownInterval then
+            countdown = countdown - 1
+            countdownTime = countdownTime % countdownInterval
+        end
     end
 
     -- Changing to countdown state on pressing space when in start or serve state
@@ -136,28 +198,23 @@ function love.draw()
 
     elseif GAME_STATE == "serve" then
 
-        -- Printing messages specific to serve state, displaying scores
-        love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
-        love.graphics.setFont(bigFont)
-        love.graphics.printf('SCORE', 0, 5, VIRTUAL_WIDTH, 'center')
-        love.graphics.setFont(biggestFont)
-        love.graphics.printf(tostring(leftPlayer.score), 0, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH / 2, 'center')
-        love.graphics.printf(tostring(rightPlayer.score), VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH / 2, 'center')
-
-        -- Vertical partition in the middle of the screen
-        love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 6, 4, VIRTUAL_HEIGHT - VIRTUAL_HEIGHT / 3)
-
-        love.graphics.setFont(smallFont)
-        love.graphics.printf('Press Space to Continue', 0, VIRTUAL_HEIGHT - 24, VIRTUAL_WIDTH, 'center')
-        ball:reset()
+        stateMachine:render()
+        -- -- Printing messages specific to serve state, displaying scores
+        -- love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
+        -- love.graphics.setFont(bigFont)
+        -- love.graphics.printf('SCORE', 0, 5, VIRTUAL_WIDTH, 'center')
+        -- love.graphics.setFont(biggestFont)
+        -- love.graphics.printf(tostring(leftPlayer.score), 0, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH / 2, 'center')
+        -- love.graphics.printf(tostring(rightPlayer.score), VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH / 2, 'center')
+        --
+        -- -- Vertical partition in the middle of the screen
+        -- love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 6, 4, VIRTUAL_HEIGHT - VIRTUAL_HEIGHT / 3)
+        --
+        -- love.graphics.setFont(smallFont)
+        -- love.graphics.printf('Press Space to Continue', 0, VIRTUAL_HEIGHT - 24, VIRTUAL_WIDTH, 'center')
+        -- ball:reset()
 
     elseif GAME_STATE == "countdown" then
-
-        -- Countdown algorithm with interval as countdownInterval
-        if countdownTime > countdownInterval then
-            countdown = countdown - 1
-            countdownTime = countdownTime % countdownInterval
-        end
 
         -- Printing countdown
         love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
@@ -171,51 +228,14 @@ function love.draw()
 
     elseif GAME_STATE == "play" then
 
-        -- White color for ball and paddles
-        love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
-
-        -- Incrementing right player score when ball goes to the left of screen
-        if ball.x < 0 then
-
-          rightPlayer.score = rightPlayer.score + 1
-
-          -- Game ends when scores reaches 5
-          if rightPlayer.score == 5 then
-              GAME_STATE = "end"
-              winner = "Right"
-          else
-              GAME_STATE = "serve"
-          end
-
-        -- Incrementing left player score when ball goes to the right of screen
-        elseif ball.x > VIRTUAL_WIDTH then
-
-            leftPlayer.score = leftPlayer.score + 1
-
-            -- Game ends when scores reaches 5
-            if leftPlayer.score == 5 then
-                GAME_STATE = "end"
-                winner = "Left"
-            else
-                GAME_STATE = "serve"
-            end
-
-        end
-
-        -- Updating ball if it collides with left player
-        if ball:hasCollided(leftPlayer) then
-            ball:updateOnCollision('left', leftPlayer)
-        end
-
-        -- Updating ball if it collides with right player
-        if ball:hasCollided(rightPlayer) then
-            ball:updateOnCollision('right', rightPlayer)
-        end
-
-        -- Drawing updated ball, left and right player
-        love.graphics.rectangle('fill', 10, leftPlayer.y, leftPlayer.width, leftPlayer.height)
-        love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayer.y, rightPlayer.width, rightPlayer.height)
-        love.graphics.rectangle('fill', ball.x, ball.y, ball.width, ball.height)
+        stateMachine:render()
+        -- -- White color for ball and paddles
+        -- love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
+        --
+        -- -- Drawing updated ball, left and right player
+        -- love.graphics.rectangle('fill', 10, leftPlayer.y, leftPlayer.width, leftPlayer.height)
+        -- love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, rightPlayer.y, rightPlayer.width, rightPlayer.height)
+        -- love.graphics.rectangle('fill', ball.x, ball.y, ball.width, ball.height)
 
     elseif GAME_STATE == "end" then
 
