@@ -1,18 +1,18 @@
 EndState = Class{ __includes = BaseState }
 
-function EndState:init()
-
-end
-
 function EndState:update(dt)
+
+    -- Changing state to start on pressing return key
     if love.keyboard.wasPressed('return') then
         stateMachine:change('start')
 
+        -- Resetting all the variables required for scoring
         leftPlayerScore = 0
         rightPlayerScore = 0
         winner = nil
-        
+
     end
+    
 end
 
 function EndState:render()
