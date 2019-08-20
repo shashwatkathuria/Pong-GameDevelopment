@@ -12,8 +12,6 @@ function Paddle:init(x, y, width, height, speed)
     self.centerY = self.y + ((self.y + self.height) / 2)
 
     self.speed = speed
-
-    self.score = 0
 end
 
 -- Function to update paddle according to move specified
@@ -48,5 +46,5 @@ function Paddle:reset(x, y)
     self.y = y
     self.centerY = self.y + (self.height / 2)
     self.score = 0
-    
+
 end
