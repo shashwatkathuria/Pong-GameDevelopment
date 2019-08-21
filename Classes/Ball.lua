@@ -3,7 +3,7 @@ Ball = Class{}
 
 -- Constructor for ball
 function Ball:init(x, y, width, height)
-  
+
     self.x = x
     self.y = y
     self.width = width
@@ -75,18 +75,5 @@ function Ball:updateOnCollision(player, paddle)
         self.x = paddle.x - self.width
 
     end
-
-end
-
--- Function to reset ball
-function Ball:reset()
-
-    -- Resetting required variables
-
-    self.x = VIRTUAL_WIDTH / 2 - 2
-    self.y = VIRTUAL_HEIGHT / 2 - 2
-
-    self.vx = math.random() > 0.5 and 150 or -150
-    self.vy = math.random(-300, 300)
 
 end
