@@ -1,13 +1,18 @@
 PlayState = Class{__includes = BaseState}
 
+PADDLE_HEIGHT = 40
+PADDLE_WIDTH = 5
+PADDLE_SPEED = 250
+
 function PlayState:init()
 
+    -- Initializing ball, left player and right player
     self.ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
     self.leftPlayer = Paddle(10, 30, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
     self.rightPlayer = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 50, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
-    math.randomseed(os.time())
-    self.ball:reset()
 
+    -- Randomizing seed
+    math.randomseed(os.time())
 
 end
 
@@ -32,11 +37,11 @@ function PlayState:update(dt)
     -- Incrementing right player score when ball goes to the left of screen
     if self.ball.x < 0 then
 
-      self.rightPlayer.score = self.rightPlayer.score + 1
+      rightPlayerScore = rightPlayerScore + 1
 
       -- Game ends when scores reaches 5
-      if self.rightPlayer.score == 5 then
-          GAME_STATE = "end"
+      if rightPlayerScore == 5 then
+          stateMachine:change('end')
           winner = "Right"
       else
           stateMachine:change("serve", {
@@ -49,11 +54,11 @@ function PlayState:update(dt)
     -- Incrementing left player score when ball goes to the right of screen
   elseif self.ball.x > VIRTUAL_WIDTH then
 
-        self.leftPlayer.score = self.leftPlayer.score + 1
+        leftPlayerScore = leftPlayerScore + 1
 
         -- Game ends when scores reaches 5
-        if self.leftPlayer.score == 5 then
-            GAME_STATE = "end"
+        if leftPlayerScore == 5 then
+            stateMachine:change('end')
             winner = "Left"
         else
             stateMachine:change("serve",{
