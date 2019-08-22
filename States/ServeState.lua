@@ -3,6 +3,7 @@ ServeState = Class { __includes = BaseState }
 
 function ServeState:update(dt)
 
+    -- Changing state to countdown when space is pressed
     if love.keyboard.isDown('space') then
         stateMachine:change('countdown')
     end
@@ -10,7 +11,7 @@ function ServeState:update(dt)
 end
 
 function ServeState:render()
-  
+
     -- Printing messages specific to serve state, displaying scores
     love.graphics.setColor(224 / 255, 201 / 255, 70 / 255, 255 / 255)
     love.graphics.setFont(bigFont)
